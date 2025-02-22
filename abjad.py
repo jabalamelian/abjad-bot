@@ -1,7 +1,7 @@
 import telebot
 import requests
 
-TOKEN ="8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
+TOKEN = "8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
 bot = telebot.TeleBot(TOKEN)
 
 # تابع محاسبه ابجد
@@ -29,11 +29,11 @@ def get_quran_verse(message):
         surah, verse = parts
         url = f"https://api.alquran.cloud/v1/ayah/{surah}:{verse}/fa.ghomshei"
         response = requests.get(url)
+        response.encoding = "utf-8"  # تنظیم کدگذاری پاسخ برای نمایش درست متن
         data = response.json()
 
         if data["status"] == "OK":
-            ayah_text = data["data"]["text"]  # دریافت متن آیه
-            ayah_text = bytes(ayah_text, "utf-8").decode("unicode_escape")  # تبدیل متن از Unicode
+            ayah_text = data["data"]["text"]  # متن آیه بدون نیاز به تبدیل اضافی
             abjad_value = calculate_abjad(ayah_text)
 
             bot.reply_to(message, f"📖 آیه: {ayah_text}\n🔢 مقدار ابجد: {abjad_value}")
