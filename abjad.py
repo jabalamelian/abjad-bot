@@ -1,5 +1,6 @@
 import telebot
 import requests
+import re
 
 TOKEN = "8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
 bot = telebot.TeleBot(TOKEN)
@@ -11,7 +12,9 @@ def calculate_abjad(text):
         "ی": 10, "ک": 20, "ل": 30, "م": 40, "ن": 50, "س": 60, "ع": 70, "ف": 80, "ص": 90,
         "ق": 100, "ر": 200, "ش": 300, "ت": 400, "ث": 500, "خ": 600, "ذ": 700, "ض": 800, "ظ": 900, "غ": 1000
     }
-    return sum(abjad_dict.get(char, 0) for char in text if char in abjad_dict)
+    # حذف کاراکترهای غیرعربی و محاسبه مقدار ابجد فقط برای حروف معتبر
+    clean_text = re.sub(r'[^ابجددهوزحطیکلمنسعفصقرشتثخذضظغ]', '', text)
+    return sum(abjad_dict.get(char, 0) for char in clean_text)
 
 # دریافت اطلاعات از کاربر
 @bot.message_handler(commands=['start'])
@@ -27,15 +30,13 @@ def get_quran_verse(message):
             return
         
         surah, verse = parts
-        url = f"https://api.alquran.cloud/v1/ayah/{surah}:{verse}/fa.ghomshei"
+        url = f"https://api.alquran.cloud/v1/ayah/{surah}:{verse}"
         response = requests.get(url)
-        response.encoding = "utf-8"  # تنظیم کدگذاری پاسخ برای نمایش درست متن
         data = response.json()
 
         if data["status"] == "OK":
-            ayah_text = data["data"]["text"]  # متن آیه بدون نیاز به تبدیل اضافی
+            ayah_text = data["data"]["text"]  # دریافت متن عربی آیه
             abjad_value = calculate_abjad(ayah_text)
-
             bot.reply_to(message, f"📖 آیه: {ayah_text}\n🔢 مقدار ابجد: {abjad_value}")
         else:
             bot.reply_to(message, "❌ سوره یا آیه‌ای با این شماره یافت نشد.")
