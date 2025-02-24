@@ -2,8 +2,7 @@ import telebot
 import requests
 import re
 
-# توکن ربات تلگرام
-TOKEN ="8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
+TOKEN = "8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
 bot = telebot.TeleBot(TOKEN)
 
 # دیکشنری حروف ابجد
@@ -15,11 +14,8 @@ abjad_dict = {
 
 # تابع حذف علائم و محاسبه ابجد
 def calculate_abjad(text):
-    # حذف اعراب و علائم عربی (تنوین، فتحه، کسره و غیره)
-    text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED]', '', text)
-
-    # حذف کشیدگی (U+0640)
-    text = text.replace("ٰ", "")
+    # حذف تمام علائم عربی (تنوین، فتحه، کسره، کشیدگی، و غیره)
+    text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED\u0640]', '', text)  
 
     # جایگزینی الف کوچک (ٱ) با الف معمولی (ا)
     text = text.replace("ٱ", "ا")
@@ -27,6 +23,9 @@ def calculate_abjad(text):
     # جایگزینی انواع مختلف "ی" و "ک" برای هماهنگی
     text = text.replace("ي", "ی").replace("ى", "ی")  # تبدیل "ي" و "ى" عربی به "ی" فارسی
     text = text.replace("ك", "ک")  # تبدیل "ك" عربی به "ک" فارسی
+
+    # حذف فضاهای اضافی و نامرئی
+    text = text.strip()
 
     # چاپ کدهای یونیکد متن پردازش‌شده برای بررسی مشکل
     unicode_values = [ord(char) for char in text]
