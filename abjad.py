@@ -20,9 +20,14 @@ def calculate_abjad(text):
 
 # تابع حذف بسم‌الله در سوره‌های غیر از سوره ۱
 def remove_bismillah(surah, ayah_text):
-    bismillah = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-    if surah != "1" and ayah_text.startswith(bismillah):
-        return ayah_text[len(bismillah):].strip()
+    bismillah_variations = [
+        "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+        "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ"
+    ]
+    if surah != "1":
+        for bismillah in bismillah_variations:
+            if ayah_text.startswith(bismillah):
+                return ayah_text[len(bismillah):].strip()
     return ayah_text
 
 @bot.message_handler(commands=['start'])
