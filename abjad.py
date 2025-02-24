@@ -14,8 +14,16 @@ abjad_dict = {
 
 # تابع حذف علائم و محاسبه ابجد
 def calculate_abjad(text):
-    text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED]', '', text)  # حذف علائم و اعراب
-    text = text.replace("ك", "ک")  # جایگزینی کاف عربی با ک فارسی
+    # حذف اعراب و علائم عربی (تنوین، فتحه، کسره و غیره)
+    text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED]', '', text)
+
+    # جایگزینی الف کوچک (ٱ) با الف معمولی (ا)
+    text = text.replace("ٱ", "ا")
+
+    # اصلاح تفاوت‌های عربی و فارسی
+    text = text.replace("ي", "ی").replace("ك", "ک")
+
+    # محاسبه مقدار ابجد
     return sum(abjad_dict.get(char, 0) for char in text if char in abjad_dict)
 
 # تابع حذف بسم‌الله در سوره‌های غیر از سوره ۱
