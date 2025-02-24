@@ -2,7 +2,7 @@ import telebot
 import requests
 import re
 
-TOKEN ="8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
+TOKEN = "8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
 bot = telebot.TeleBot(TOKEN)
 
 # دیکشنری حروف ابجد
