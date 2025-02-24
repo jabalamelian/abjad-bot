@@ -2,7 +2,7 @@ import telebot
 import requests
 import re
 
-TOKEN ="8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
+TOKEN = "8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
 bot = telebot.TeleBot(TOKEN)
 
 # دیکشنری حروف ابجد
@@ -16,6 +16,9 @@ abjad_dict = {
 def calculate_abjad(text):
     # حذف اعراب و علائم عربی (تنوین، فتحه، کسره و غیره)
     text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED]', '', text)
+
+    # حذف کاراکتر کشیده (ٰ) که باعث اختلاف مقدار ابجد می‌شود
+    text = text.replace("ٰ", "")
 
     # جایگزینی الف کوچک (ٱ) با الف معمولی (ا)
     text = text.replace("ٱ", "ا")
