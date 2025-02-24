@@ -14,9 +14,16 @@ abjad_dict = {
 
 # تابع حذف علائم و محاسبه ابجد
 def calculate_abjad(text):
-    text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED]', '', text)  # حذف علائم
+    text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED]', '', text)  # حذف علائم و اعراب
     text = text.replace("ك", "ک")  # جایگزینی کاف عربی با ک فارسی
     return sum(abjad_dict.get(char, 0) for char in text if char in abjad_dict)
+
+# تابع حذف بسم‌الله در سوره‌های غیر از سوره ۱
+def remove_bismillah(surah, ayah_text):
+    bismillah = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
+    if surah != "1" and ayah_text.startswith(bismillah):
+        return ayah_text[len(bismillah):].strip()
+    return ayah_text
 
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
@@ -37,11 +44,7 @@ def get_quran_verse(message):
 
         if data["status"] == "OK":
             ayah_text = data["data"]["text"]
-
-            # حذف بسم‌الله اگر سوره 1 نباشد و آیه با آن شروع شود
-            bismillah = "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ"
-            if surah != "1" and ayah_text.startswith(bismillah):
-                ayah_text = ayah_text[len(bismillah):].strip()
+            ayah_text = remove_bismillah(surah, ayah_text)  # حذف بسم‌الله اگر لازم باشد
 
             abjad_value = calculate_abjad(ayah_text)
             bot.reply_to(message, f"📖 **آیه:**\n{ayah_text}\n\n🔢 **مقدار ابجد:** {abjad_value}")
