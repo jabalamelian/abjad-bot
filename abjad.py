@@ -2,7 +2,7 @@ import telebot
 import requests
 import re
 
-TOKEN = "8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
+TOKEN ="8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
 bot = telebot.TeleBot(TOKEN)
 
 # دیکشنری حروف ابجد
@@ -14,16 +14,8 @@ abjad_dict = {
 
 # تابع حذف علائم و محاسبه ابجد
 def calculate_abjad(text):
-    # حذف اعراب و علائم عربی (تنوین، فتحه، کسره و غیره)
-    text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED]', '', text)
-
-    # جایگزینی الف کوچک (ٱ) با الف معمولی (ا)
-    text = text.replace("ٱ", "ا")
-
-    # اصلاح تفاوت‌های عربی و فارسی
-    text = text.replace("ي", "ی").replace("ك", "ک")
-
-    # محاسبه مقدار ابجد
+    text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED]', '', text)  # حذف علائم و اعراب
+    text = text.replace("ٱ", "ا").replace("ك", "ک").replace("ي", "ی")  # جایگزینی الف کوچک و تفاوت‌های عربی-فارسی
     return sum(abjad_dict.get(char, 0) for char in text if char in abjad_dict)
 
 # تابع حذف بسم‌الله در سوره‌های غیر از سوره ۱
