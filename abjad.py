@@ -2,7 +2,7 @@ import telebot
 import requests
 import re
 
-TOKEN = "8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
+TOKEN ="8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
 bot = telebot.TeleBot(TOKEN)
 
 # دیکشنری حروف ابجد
@@ -12,7 +12,7 @@ abjad_dict = {
     "ق": 100, "ر": 200, "ش": 300, "ت": 400, "ث": 500, "خ": 600, "ذ": 700, "ض": 800, "ظ": 900, "غ": 1000
 }
 
-# تابع حذف علائم و محاسبه ابجد
+# تابع محاسبه مقدار ابجد
 def calculate_abjad(text):
     # حذف اعراب و علائم عربی (تنوین، فتحه، کسره و غیره)
     text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED]', '', text)
@@ -23,8 +23,10 @@ def calculate_abjad(text):
     # اصلاح تفاوت‌های عربی و فارسی
     text = text.replace("ي", "ی").replace("ك", "ک")
 
-    # نمایش متن پردازش‌شده برای بررسی
+    # چاپ کدهای یونیکد متن پردازش‌شده برای بررسی مشکل
+    unicode_values = [ord(char) for char in text]
     print(f"متن پس از پردازش: {text}")
+    print(f"کدهای یونیکد متن: {unicode_values}")
 
     # محاسبه مقدار ابجد
     return sum(abjad_dict.get(char, 0) for char in text if char in abjad_dict)
