@@ -1,6 +1,12 @@
+import telebot
 import requests
 import json
 import re
+
+# توکن ربات تلگرام
+TOKEN = "8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
+CHAT_ID = "@Abjadghoranbot"
+bot = telebot.TeleBot(TOKEN)
 
 # دیکشنری حروف ابجد
 abjad_dict = {
@@ -13,7 +19,7 @@ abjad_dict = {
 def calculate_abjad(text):
     text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED\u0640]', '', text)  # حذف علائم عربی
     text = text.replace("ٱ", "ا").replace("ي", "ی").replace("ى", "ی").replace("ك", "ک")  # هماهنگ‌سازی حروف
-    text = text.strip()  # حذف فضاهای اضافی
+    text = text.strip()
     return sum(abjad_dict.get(char, 0) for char in text if char in abjad_dict)
 
 # تابع حذف بسم‌الله در سوره‌های غیر از سوره ۱
@@ -22,37 +28,39 @@ def remove_bismillah(surah, ayah_text):
         "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
         "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ"
     ]
-    if surah != 1:  # اگر سوره اول نیست
+    if surah != "1":
         for bismillah in bismillah_variations:
             if ayah_text.startswith(bismillah):
                 return ayah_text[len(bismillah):].strip()
     return ayah_text
 
-# دریافت تمام آیات و محاسبه مقدار ابجد
-def fetch_quran_verses():
-    all_verses = []
-    for surah in range(1, 115):  # 114 سوره
-        url = f"https://api.alquran.cloud/v1/surah/{surah}/quran-uthmani"
-        response = requests.get(url)
+# دریافت کل قرآن از API و محاسبه ابجد
+def fetch_quran():
+    quran_abjad = []
+    for surah in range(1, 115):  # 114 سوره داریم
+        response = requests.get(f"https://api.alquran.cloud/v1/surah/{surah}/quran-uthmani")
         data = response.json()
-        
         if data["status"] == "OK":
             for ayah in data["data"]["ayahs"]:
-                ayah_text = remove_bismillah(surah, ayah["text"])  # حذف بسم‌الله اگر لازم باشد
-                abjad_value = calculate_abjad(ayah_text)
-                
-                all_verses.append({
+                text = remove_bismillah(str(surah), ayah["text"])  # حذف بسم‌الله اگر لازم باشد
+                abjad_value = calculate_abjad(text)
+                quran_abjad.append({
                     "surah": surah,
                     "ayah": ayah["numberInSurah"],
-                    "text": ayah_text,
+                    "text": text,
                     "abjad": abjad_value
                 })
-    
-    # ذخیره اطلاعات در فایل JSON
-    with open("quran_abjad.json", "w", encoding="utf-8") as f:
-        json.dump(all_verses, f, ensure_ascii=False, indent=2)
-    
-    print("✅ دریافت و محاسبه ابجد آیات کامل شد! اطلاعات در quran_abjad.json ذخیره شد.")
+    return quran_abjad
 
-# اجرای تابع
-fetch_quran_verses()
+# محاسبه و ذخیره مقادیر ابجد قرآن
+quran_abjad_data = fetch_quran()
+with open("quran_abjad.json", "w", encoding="utf-8") as f:
+    json.dump(quran_abjad_data, f, ensure_ascii=False, indent=4)
+
+print("✅ دریافت و محاسبه ابجد آیات کامل شد! اطلاعات در quran_abjad.json ذخیره شد.")
+
+# ارسال فایل به تلگرام
+with open("quran_abjad.json", "rb") as f:
+    bot.send_document(CHAT_ID, f, caption="📂 فایل quran_abjad.json آماده است! دانلود و در گیت‌هاب آپلود کن.")
+
+print("✅ فایل به تلگرام ارسال شد!")
