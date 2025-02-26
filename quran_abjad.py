@@ -5,7 +5,7 @@ import re
 
 # توکن ربات تلگرام
 TOKEN = "8096262106:AAEkYE_sbdIvjWhtYEGD88zTHlaOtYsKpF4"
-CHAT_ID = "@Abjadghoranbot"
+CHAT_ID = "103589355"
 bot = telebot.TeleBot(TOKEN)
 
 # دیکشنری حروف ابجد
