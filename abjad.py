@@ -17,9 +17,21 @@ abjad_dict = {
 with open("quran_abjad.json", "r", encoding="utf-8") as f:
     quran_abjad_data = json.load(f)
 
+# تابع حذف بسم‌الله (به‌جز در سوره ۱)
+def remove_bismillah(surah, ayah_text):
+    bismillah_variations = [
+        "بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ",
+        "بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ"
+    ]
+    if surah != "1":  # اگر سوره ۱ نباشد
+        for bismillah in bismillah_variations:
+            if ayah_text.startswith(bismillah):
+                return ayah_text[len(bismillah):].strip()
+    return ayah_text
+
 # تابع محاسبه ابجد
 def calculate_abjad(text):
-    text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED\u0640]', '', text)
+    text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED\u0640]', '', text)  # حذف علائم عربی
     text = text.replace("ٱ", "ا").replace("ي", "ی").replace("ى", "ی").replace("ك", "ک")
     text = text.strip()
     return sum(abjad_dict.get(char, 0) for char in text if char in abjad_dict)
@@ -48,6 +60,7 @@ def get_quran_verse(message):
 
         if data["status"] == "OK":
             ayah_text = data["data"]["text"]
+            ayah_text = remove_bismillah(surah, ayah_text)  # حذف بسم‌الله اگر لازم باشد
             abjad_value = calculate_abjad(ayah_text)
 
             # پیدا کردن آیات هم‌ابجد
