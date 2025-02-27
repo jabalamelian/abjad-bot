@@ -29,10 +29,12 @@ def remove_bismillah(surah, ayah_text):
                 return ayah_text[len(bismillah):].strip()
     return ayah_text
 
-# تابع محاسبه ابجد
+# تابع محاسبه ابجد با در نظر گرفتن تبدیل همزه‌دارها
 def calculate_abjad(text):
     text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED\u0640]', '', text)  # حذف علائم عربی
     text = text.replace("ٱ", "ا").replace("ي", "ی").replace("ى", "ی").replace("ك", "ک")
+    text = text.replace("أ", "ا").replace("إ", "ا")  # تبدیل الف‌های همزه‌دار به ا
+    text = text.replace("ء", "")  # حذف همزه منفصل
     text = text.strip()
     return sum(abjad_dict.get(char, 0) for char in text if char in abjad_dict)
 
