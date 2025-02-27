@@ -73,16 +73,16 @@ def get_ayah_number(message, surah):
         matches = find_matching_verses(abjad_value)
 
         # ساخت متن خروجی
-        response_text = f"📖 **محاسبه ابجد آیه**\n"
-        response_text += f"📌 **سوره:** {surah}\n"
-        response_text += f"📌 **آیه:** {verse}\n"
-        response_text += f"📜 **متن:**\n{ayah_text}\n\n"
-        response_text += f"🔢 **مقدار ابجد:** {abjad_value}\n\n"
+        response_text = f"📖 محاسبه ابجد آیه\n"
+        response_text += f"📌 سوره: {surah}\n"
+        response_text += f"📌 آیه: {verse}\n"
+        response_text += f"📜 متن آیه:\n{ayah_text}\n\n"
+        response_text += f"🔢 مقدار ابجد: {abjad_value}\n\n"
 
         if matches:
-            response_text += "🔍 **آیات با ابجد مشابه:**\n"
+            response_text += "🔍 آیات با ابجد مشابه:\n"
             for m in matches:
-                response_text += f"📌 **سوره:** {m['surah']} | **آیه:** {m['ayah']}\n📜 {m['text']}\n\n"
+                response_text += f"📌 سوره: {m['surah']} | آیه: {m['ayah']}\n📜 {m['text']}\n\n"
 
         # ارسال پیام به همراه دکمه "شروع مجدد"
         markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
@@ -95,6 +95,6 @@ def get_ayah_number(message, surah):
 # دکمه شروع مجدد
 @bot.message_handler(func=lambda message: message.text == "🔄 شروع مجدد")
 def restart_bot(message):
-    bot.send_message(message.chat.id, "🤖 **ربات محاسبه ابجد آیات قرآن**\nلطفاً شماره سوره را وارد کنید:")
+    bot.send_message(message.chat.id, "🤖 ربات محاسبه ابجد آیات قرآن\nلطفاً شماره سوره را وارد کنید:")
 
 bot.polling()
