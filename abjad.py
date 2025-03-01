@@ -131,7 +131,7 @@ def get_repeat_button():
     return markup
 
 # مدیریت دکمه تکرار
-@bot.message_handler(func=lambda message: message.text == "🔄 تکرار")
+@bot.message_handler(func=lambda message: message.text == "🔄 شروع مجدد")
 def restart_bot(message):
     send_main_menu(message.chat.id)
 
