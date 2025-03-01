@@ -127,7 +127,7 @@ def calculate_word_abjad(message):
 # دکمه تکرار
 def get_repeat_button():
     markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-    markup.add("🔄 تکرار")
+    markup.add("🔄 شروع مجدد")
     return markup
 
 # مدیریت دکمه تکرار
