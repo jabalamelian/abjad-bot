@@ -29,7 +29,7 @@ def remove_bismillah(surah, ayah_text):
                 return ayah_text[len(bismillah):].strip()
     return ayah_text
 
-# تابع محاسبه ابجد با در نظر گرفتن تبدیل همزه‌دارها
+# تابع محاسبه ابجد
 def calculate_abjad(text):
     text = re.sub(r'[\u064B-\u065F\u06D6-\u06ED\u0640]', '', text)  # حذف علائم عربی
     text = text.replace("ٱ", "ا").replace("ي", "ی").replace("ى", "ی").replace("ك", "ک")
@@ -43,16 +43,35 @@ def find_matching_verses(target_abjad):
     matches = [v for v in quran_abjad_data if v["abjad"] == target_abjad]
     return matches[:5]  # فقط ۵ مورد اول را برگرداند
 
+# تابع ارسال منوی اصلی
+def send_main_menu(chat_id):
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("🔢 ابجد کلمه", "📖 ابجد کبیر آیه")
+    bot.send_message(chat_id, "🤖 **ربات محاسبه ابجد**\nلطفاً یکی از گزینه‌های زیر را انتخاب کنید:", reply_markup=markup)
+
 # تابع شروع ربات
 @bot.message_handler(commands=['start'])
 def send_welcome(message):
-    bot.reply_to(message, "🤖 **ربات محاسبه ابجد آیات قرآن**\nلطفاً شماره سوره را وارد کنید:")
+    send_main_menu(message.chat.id)
+
+# مدیریت انتخاب کاربر از منوی اصلی
+@bot.message_handler(func=lambda message: message.text in ["🔢 ابجد کلمه", "📖 ابجد کبیر آیه"])
+def menu_selection(message):
+    if message.text == "🔢 ابجد کلمه":
+        bot.send_message(message.chat.id, "✍ لطفاً کلمه مورد نظر را وارد کنید:")
+        bot.register_next_step_handler(message, calculate_word_abjad)
+    elif message.text == "📖 ابجد کبیر آیه":
+        bot.send_message(message.chat.id, "📌 لطفاً شماره سوره را وارد کنید:")
+        bot.register_next_step_handler(message, get_surah_number)
 
 # دریافت شماره سوره
-@bot.message_handler(func=lambda message: message.text.isdigit())
 def get_surah_number(message):
+    if not message.text.isdigit():
+        bot.send_message(message.chat.id, "❌ شماره سوره معتبر نیست. لطفاً فقط عدد وارد کنید.")
+        return
+    
     surah = message.text
-    bot.send_message(message.chat.id, "لطفاً شماره آیه را وارد کنید:")
+    bot.send_message(message.chat.id, "📌 لطفاً شماره آیه را وارد کنید:")
     bot.register_next_step_handler(message, lambda m: get_ayah_number(m, surah))
 
 # دریافت شماره آیه و نمایش نتیجه
@@ -86,17 +105,34 @@ def get_ayah_number(message, surah):
             for m in matches:
                 response_text += f"📌 سوره: {m['surah']} | آیه: {m['ayah']}\n📜 {m['text']}\n\n"
 
-        # ارسال پیام به همراه دکمه "شروع مجدد"
-        markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
-        markup.add("🔄 شروع مجدد")
-        bot.send_message(message.chat.id, response_text, reply_markup=markup)
+        bot.send_message(message.chat.id, response_text, reply_markup=get_repeat_button())
     
     else:
         bot.send_message(message.chat.id, "❌ سوره یا آیه‌ای با این شماره یافت نشد.")
 
-# دکمه شروع مجدد
-@bot.message_handler(func=lambda message: message.text == "🔄 شروع مجدد")
+# تابع محاسبه ابجد یک کلمه
+def calculate_word_abjad(message):
+    word = message.text.strip()
+    if not word:
+        bot.send_message(message.chat.id, "❌ لطفاً یک کلمه معتبر وارد کنید.")
+        return
+    
+    abjad_value = calculate_abjad(word)
+    response_text = f"🔢 **محاسبه ابجد کلمه**\n"
+    response_text += f"📜 کلمه: {word}\n"
+    response_text += f"🔢 مقدار ابجد: {abjad_value}"
+    
+    bot.send_message(message.chat.id, response_text, reply_markup=get_repeat_button())
+
+# دکمه تکرار
+def get_repeat_button():
+    markup = telebot.types.ReplyKeyboardMarkup(resize_keyboard=True)
+    markup.add("🔄 تکرار")
+    return markup
+
+# مدیریت دکمه تکرار
+@bot.message_handler(func=lambda message: message.text == "🔄 تکرار")
 def restart_bot(message):
-    bot.send_message(message.chat.id, "🤖 ربات محاسبه ابجد آیات قرآن\nلطفاً شماره سوره را وارد کنید:")
+    send_main_menu(message.chat.id)
 
 bot.polling()
