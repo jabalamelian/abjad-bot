@@ -17,6 +17,11 @@ abjad_dict = {
 with open("quran_abjad.json", "r", encoding="utf-8") as f:
     quran_abjad_data = json.load(f)
 
+# تابع تبدیل اعداد فارسی به انگلیسی
+def convert_persian_numbers(text):
+    persian_to_english = str.maketrans("۰۱۲۳۴۵۶۷۸۹", "0123456789")
+    return text.translate(persian_to_english)
+
 # تابع حذف بسم‌الله (به‌جز در سوره ۱)
 def remove_bismillah(surah, ayah_text):
     bismillah_variations = [
@@ -66,21 +71,21 @@ def menu_selection(message):
 
 # دریافت شماره سوره
 def get_surah_number(message):
-    if not message.text.isdigit():
+    surah = convert_persian_numbers(message.text)  # تبدیل اعداد فارسی به انگلیسی
+    if not surah.isdigit():
         bot.send_message(message.chat.id, "❌ شماره سوره معتبر نیست. لطفاً فقط عدد وارد کنید.")
         return
     
-    surah = message.text
     bot.send_message(message.chat.id, "📌 لطفاً شماره آیه را وارد کنید:")
     bot.register_next_step_handler(message, lambda m: get_ayah_number(m, surah))
 
 # دریافت شماره آیه و نمایش نتیجه
 def get_ayah_number(message, surah):
-    if not message.text.isdigit():
+    verse = convert_persian_numbers(message.text)  # تبدیل اعداد فارسی به انگلیسی
+    if not verse.isdigit():
         bot.send_message(message.chat.id, "❌ شماره آیه معتبر نیست. لطفاً فقط عدد وارد کنید.")
         return
     
-    verse = message.text
     url = f"https://api.alquran.cloud/v1/ayah/{surah}:{verse}/quran-uthmani"
     response = requests.get(url)
     data = response.json()
